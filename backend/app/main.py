@@ -6,14 +6,36 @@ import os
 from .schemas import BookmarkIn, BookmarkOut
 from .db import engine, init_db, bookmarks
 from sqlalchemy import insert, select
+import json
+
+# redis optional
+import os
+redis_client = None
+try:
+    import redis as redis_pkg
+except Exception:
+    redis_pkg = None
 
 
 app = FastAPI()
 
 
+@app.get("/")
+def root():
+    return {"service": "bookmark-manager", "status": "running"}
+
+
 @app.on_event("startup")
 def on_startup():
     init_db()
+    # init redis if available
+    global redis_client
+    redis_url = os.getenv("REDIS_URL")
+    if redis_pkg and redis_url:
+        try:
+            redis_client = redis_pkg.from_url(redis_url)
+        except Exception:
+            redis_client = None
 
 
 @app.get("/health")
@@ -39,6 +61,13 @@ def add_bookmark(b: BookmarkIn):
     }
     with engine.begin() as conn:
         conn.execute(insert(bookmarks).values(**item))
+    # enqueue for worker if redis is configured
+    try:
+        if redis_client:
+            redis_client.rpush("bookmark_queue", json.dumps({"id": item_id, "url": item["url"]}))
+    except Exception:
+        # don't fail request if redis not available
+        pass
     return item
 
 
