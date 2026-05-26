@@ -26,6 +26,7 @@ services:
       - internal
 
   backend:
+    image: bookmark-manager_backend:${IMAGE_TAG:-local}
     build:
       context: .
       dockerfile: backend/Dockerfile
@@ -57,6 +58,7 @@ services:
       - internal
 
   worker:
+    image: bookmark-manager_worker:${IMAGE_TAG:-local}
     build:
       context: .
       dockerfile: worker/Dockerfile
@@ -81,6 +83,11 @@ services:
           memory: 128M
     networks:
       - internal
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"from backend.app.db import engine; conn=engine.connect(); conn.close(); print('ok')\""]
+      interval: 15s
+      timeout: 5s
+      retries: 5
 
   nginx:
     build:
