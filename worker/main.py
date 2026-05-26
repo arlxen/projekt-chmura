@@ -49,7 +49,19 @@ def process_message(msg: str):
 def run():
     r = redis.from_url(REDIS_URL)
     print("worker connected to redis")
-    while True:
+    import signal
+
+    running = True
+
+    def handle_sig(signum, frame):
+        nonlocal running
+        print("worker: received signal, shutting down")
+        running = False
+
+    signal.signal(signal.SIGINT, handle_sig)
+    signal.signal(signal.SIGTERM, handle_sig)
+
+    while running:
         try:
             item = r.blpop("bookmark_queue", timeout=5)
             if not item:
@@ -62,6 +74,12 @@ def run():
         except Exception as e:
             print("worker error:", e)
             time.sleep(1)
+    # clean shutdown
+    try:
+        r.close()
+    except Exception:
+        pass
+    print("worker stopped")
 
 
 if __name__ == "__main__":

@@ -42,6 +42,17 @@ services:
       interval: 10s
       timeout: 5s
       retries: 10
+    stop_grace_period: 1m
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.50'
+          memory: 256M
     networks:
       - internal
 
@@ -57,6 +68,17 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    stop_grace_period: 1m
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
     networks:
       - internal
 

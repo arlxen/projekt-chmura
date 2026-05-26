@@ -38,6 +38,20 @@ def on_startup():
             redis_client = None
 
 
+@app.on_event("shutdown")
+def on_shutdown():
+    # dispose db engine and close redis
+    try:
+        engine.dispose()
+    except Exception:
+        pass
+    try:
+        if redis_client:
+            redis_client.close()
+    except Exception:
+        pass
+
+
 @app.get("/health")
 def health():
     # check db connectivity
