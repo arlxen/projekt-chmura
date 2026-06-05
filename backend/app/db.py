@@ -1,4 +1,4 @@
- import os
+import os
 from pathlib import Path
 from sqlalchemy.engine import URL
 from sqlalchemy import (
@@ -75,11 +75,6 @@ def init_db():
 
 
 def wait_for_db(engine, retries: int = 10, delay_seconds: float = 2.0) -> None:
-    """Wait for the database to accept connections.
-
-    Tries to connect up to `retries` times, sleeping `delay_seconds`
-    between attempts. Raises Exception if not ready.
-    """
     last_exc = None
     for _ in range(retries):
         try:
