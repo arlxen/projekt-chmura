@@ -19,7 +19,7 @@ WORKDIR /app
 
 # install wheels from builder
 COPY --from=builder /wheels /wheels
-RUN pip install --no-cache-dir /wheels/* || true
+RUN pip install --no-cache-dir /wheels/*
 
 COPY backend /app/backend
 

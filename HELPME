@@ -1,0 +1,14 @@
+docker compose down -v
+docker compose up --build
+docker compose exec db printenv | findstr POSTGRES
+docker compose --env-file .env up -d --build
+docker compose ps
+docker compose logs backend
+docker compose logs db
+docker compose logs worker
+docker compose logs nginx
+docker compose exec db psql -U bookmarks -d bookmarks
+docker compose exec db pg_isready -U bookmarks -d bookmarks
+docker compose exec db psql -U bookmarks -d bookmarks -W
+docker compose exec db cat /var/lib/postgresql/data/pg_hba.conf
+docker inspect projekt-chmura-db-1

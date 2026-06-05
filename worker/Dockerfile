@@ -14,7 +14,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 RUN useradd -m appuser
 WORKDIR /app
 COPY --from=builder /wheels /wheels
-RUN pip install --no-cache-dir /wheels/* || true
+RUN pip install --no-cache-dir /wheels/*
 COPY backend /app/backend
 COPY worker /app/worker
 USER appuser
